@@ -183,7 +183,9 @@
         }
 
         .section-card-info + .section-card-info {
-            display: inline-block;
+            display: block;
+            width: fit-content;
+            max-width: 100%;
             background: rgba(0, 33, 71, 0.06);
             color: var(--navy);
             font-weight: 600;
@@ -191,7 +193,9 @@
             letter-spacing: 0.02em;
             padding: 4px 10px;
             border-radius: 999px;
-            margin: 6px 0 18px;
+            margin: 6px auto 18px;
+            text-align: center;
+            box-sizing: border-box;
         }
 
         .progress-container {
@@ -6681,6 +6685,7 @@
             whCategoryFilter: 'all',
             whSearch: '',
             militaryDetailIdx: null,
+            anthemTab: 'anthem',
             financeDetailIdx: null,
             financeTypeFilter: 'all',
             agencyDetailIdx: null,
@@ -8271,22 +8276,11 @@
                 + '</div>';
         }
 
-        function openStates() {
-            state.page = 'states';
-            state.stateDetailIdx = null;
-            state.statesSearch = '';
-            state.statesRegionFilter = 'all';
-            render();
-        }
+        function openStates() { state.page = 'states'; state.stateDetailIdx = null; state.statesSearch = ''; state.statesRegionFilter = 'all'; render(); }
         function openStateDetail(idx) { state.stateDetailIdx = idx; render(); window.scrollTo(0, 0); }
         function closeStateDetail() { state.stateDetailIdx = null; render(); }
         function setStatesRegion(r) { state.statesRegionFilter = r; render(); }
-        function setStatesSearch(val) {
-            state.statesSearch = val;
-            render();
-            var inp = document.getElementById('states-search-input');
-            if (inp) { inp.focus(); inp.setSelectionRange(val.length, val.length); }
-        }
+        function setStatesSearch(val) { state.statesSearch = val; render(); var inp = document.getElementById('states-search-input'); if (inp) { inp.focus(); inp.setSelectionRange(val.length, val.length); } }
 
         function renderStates(app) {
             var regionColor = function(r) {
@@ -8303,19 +8297,15 @@
                 var idx = state.stateDetailIdx;
                 var prevDisabled = idx <= 0;
                 var nextDisabled = idx >= usStates.length - 1;
-                var keyFactsHtml = '';
-                if (s.keyFactsJa && s.keyFactsJa.length) {
-                    keyFactsHtml = '<h3 style="font-family: Merriweather, serif; color: ' + rc + '; font-size: 16px; margin: 18px 0 10px;">Key Facts</h3>'
-                        + '<ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #374151; line-height: 1.8;">'
-                        + s.keyFactsJa.map(function(e){ return '<li style="margin-bottom: 5px;">' + e + '</li>'; }).join('') + '</ul>';
-                }
-                var famousHtml = '';
-                if (s.famousPeopleJa && s.famousPeopleJa.length) {
-                    famousHtml = '<h3 style="font-family: Merriweather, serif; color: ' + rc + '; font-size: 16px; margin: 18px 0 10px;">Famous People</h3>'
-                        + '<div style="display: flex; flex-wrap: wrap; gap: 8px;">'
-                        + s.famousPeopleJa.map(function(p){ return '<span style="display: inline-block; padding: 4px 10px; background: ' + rc + '14; color: ' + rc + '; border: 1px solid ' + rc + '40; border-radius: 999px; font-size: 12px; font-weight: 600;">' + p + '</span>'; }).join('')
-                        + '</div>';
-                }
+                var keyFactsHtml = (s.keyFactsJa && s.keyFactsJa.length) ?
+                    '<h3 style="font-family: Merriweather, serif; color: ' + rc + '; font-size: 16px; margin: 18px 0 10px;">Key Facts</h3>'
+                    + '<ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #374151; line-height: 1.8;">'
+                    + s.keyFactsJa.map(function(e){ return '<li style="margin-bottom: 5px;">' + e + '</li>'; }).join('') + '</ul>' : '';
+                var famousHtml = (s.famousPeopleJa && s.famousPeopleJa.length) ?
+                    '<h3 style="font-family: Merriweather, serif; color: ' + rc + '; font-size: 16px; margin: 18px 0 10px;">Famous People</h3>'
+                    + '<div style="display: flex; flex-wrap: wrap; gap: 8px;">'
+                    + s.famousPeopleJa.map(function(p){ return '<span style="display: inline-block; padding: 4px 10px; background: ' + rc + '14; color: ' + rc + '; border: 1px solid ' + rc + '40; border-radius: 999px; font-size: 12px; font-weight: 600;">' + p + '</span>'; }).join('')
+                    + '</div>' : '';
                 var summaryBlock = s.summaryJa ? '<div style="margin-top: 16px; padding: 14px 16px; background: #f9fafb; border-left: 4px solid ' + rc + '; border-radius: 0 8px 8px 0; font-size: 14px; color: #374151; line-height: 1.9;">📝 ' + s.summaryJa + '</div>' : '';
                 var funFactBlock = s.funFact ? '<div style="margin-top: 18px; padding: 12px 16px; border: 1px dashed #d1d5db; border-radius: 6px; font-size: 13px; color: #6b7280; font-style: italic;">✨ ' + s.funFact + '</div>' : '';
                 var mapBlock = '<h3 style="font-family: Merriweather, serif; color: ' + rc + '; font-size: 16px; margin: 22px 0 8px;">🗺️ Geography &mdash; 地図</h3>'
@@ -8373,104 +8363,189 @@
             var searchHtml = '<div style="display: flex; justify-content: center; margin-bottom: 14px;">'
                 + '<input id="states-search-input" type="text" placeholder="州名・略号で検索…" value="' + (state.statesSearch || '').replace(/"/g, '&quot;') + '" oninput="setStatesSearch(this.value)" style="width: 100%; max-width: 360px; padding: 9px 14px; border: 1px solid #d1d5db; border-radius: 999px; font-size: 14px;" />'
                 + '</div>';
-            var sorted = usStates.map(function(s, i){ return { s:s, i:i }; })
-                .filter(function(o){
-                    if (regionFilter !== 'all' && o.s.region !== regionFilter) return false;
-                    if (search) {
-                        var hit = o.s.name.toLowerCase().indexOf(search) >= 0 || o.s.abbr.toLowerCase().indexOf(search) >= 0 || (o.s.nameJa||'').toLowerCase().indexOf(search) >= 0 || (o.s.capital||'').toLowerCase().indexOf(search) >= 0;
-                        if (!hit) return false;
-                    }
-                    return true;
-                });
+            var sorted = usStates.map(function(s, i){ return { s:s, i:i }; }).filter(function(o){
+                if (regionFilter !== 'all' && o.s.region !== regionFilter) return false;
+                if (search) {
+                    var hit = o.s.name.toLowerCase().indexOf(search) >= 0 || o.s.abbr.toLowerCase().indexOf(search) >= 0 || (o.s.nameJa||'').toLowerCase().indexOf(search) >= 0;
+                    if (!hit) return false;
+                }
+                return true;
+            });
             var tableRows = sorted.map(function(o){
                 var s = o.s, i = o.i;
                 var rc = regionColor(s.region);
                 return '<tr onclick="openStateDetail(' + i + ')" style="cursor: pointer; border-bottom: 1px solid #f3f4f6;">'
                     + '<td style="padding: 10px 12px; font-family: Merriweather, serif; font-weight: 700; color: ' + rc + ';">' + s.abbr + '</td>'
                     + '<td style="padding: 10px 12px;"><div style="font-weight: 600;">' + s.name + '</div><div style="font-size: 12px; color: #6b7280;">' + s.nameJa + '</div></td>'
-                    + '<td style="padding: 10px 12px;">' + s.capital + '<div style="font-size: 11px; color: #9ca3af;">' + s.capitalJa + '</div></td>'
+                    + '<td style="padding: 10px 12px;">' + s.capital + '</td>'
                     + '<td style="padding: 10px 12px; text-align: right;">' + s.population.toFixed(1) + 'M</td>'
-                    + '<td style="padding: 10px 12px; text-align: right;">' + s.area.toLocaleString() + '</td>'
-                    + '<td style="padding: 10px 12px; text-align: right;">$' + (s.gdpPerCapita / 1000).toFixed(0) + 'K</td>'
-                    + '<td style="padding: 10px 12px; text-align: center;">' + s.admitted + '</td>'
-                    + '<td style="padding: 10px 12px; text-align: center;"><span style="padding: 2px 8px; background: ' + rc + '20; color: ' + rc + '; border-radius: 8px; font-size: 11px; font-weight: 600;">' + s.region + '</span></td>'
+                    + '<td style="padding: 10px 12px; text-align: center;"><span style="padding: 2px 8px; background: ' + rc + '20; color: ' + rc + '; border-radius: 8px; font-size: 11px;">' + s.region + '</span></td>'
                     + '</tr>';
             }).join('');
             app.innerHTML = '<div style="max-width: 1100px; margin: 0 auto; padding: 0 16px;">'
                 + '<button class="btn-back" onclick="goToDashboard()">&larr; Dashboard</button>'
                 + '<h2 style="font-family: Merriweather, serif; color: var(--navy); text-align: center; margin: 16px 0 6px 0; font-size: 22px;">🗺️ The 50 United States &mdash; アメリカ50州</h2>'
-                + '<p style="text-align: center; color: #6b7280; margin-bottom: 6px; font-size: 13px;">' + usStates.length + ' states &middot; 地図上にカーソルで基本情報、クリックで詳細</p>'
                 + legendHtml + tilemapHtml + searchHtml
                 + '<div style="overflow-x: auto; background: white; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 30px;">'
-                + '<table style="width: 100%; border-collapse: collapse; font-size: 13px;"><thead style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;"><tr>'
-                + '<th style="padding: 10px 12px; text-align: left;">略号</th>'
-                + '<th style="padding: 10px 12px; text-align: left;">州名</th>'
-                + '<th style="padding: 10px 12px; text-align: left;">州都</th>'
-                + '<th style="padding: 10px 12px; text-align: right;">人口</th>'
-                + '<th style="padding: 10px 12px; text-align: right;">面積</th>'
-                + '<th style="padding: 10px 12px; text-align: right;">1人GDP</th>'
-                + '<th style="padding: 10px 12px; text-align: center;">加盟年</th>'
-                + '<th style="padding: 10px 12px; text-align: center;">地域</th>'
+                + '<table style="width: 100%; border-collapse: collapse; font-size: 13px;"><thead style="background: #f9fafb;"><tr>'
+                + '<th style="padding: 10px 12px; text-align: left;">略号</th><th style="padding: 10px 12px; text-align: left;">州名</th><th style="padding: 10px 12px; text-align: left;">州都</th><th style="padding: 10px 12px; text-align: right;">人口</th><th style="padding: 10px 12px; text-align: center;">地域</th>'
                 + '</tr></thead><tbody>' + tableRows + '</tbody></table></div></div>';
             setTimeout(function(){ if (typeof drawUsStatesMap === 'function') drawUsStatesMap(); }, 0);
         }
 
-        // ========== ANTHEM & PLEDGE ==========
-        function openAnthem() { state.page = 'anthem'; render(); window.scrollTo(0, 0); }
+        function openWorldHeritage() { state.page = 'worldheritage'; state.whDetailIdx = null; state.whCategoryFilter = 'all'; state.whSearch = ''; render(); }
+        function openWHDetail(idx) { state.whDetailIdx = idx; render(); window.scrollTo(0, 0); }
+        function closeWHDetail() { state.whDetailIdx = null; render(); }
+        function setWHCategory(c) { state.whCategoryFilter = c; render(); }
+        function setWHSearch(val) { state.whSearch = val; render(); var inp = document.getElementById('wh-search-input'); if (inp) { inp.focus(); inp.setSelectionRange(val.length, val.length); } }
 
-        function renderAnthem(app) {
-            var red = '#b91c1c';
-            var navy = '#1e3a5f';
-
-            var anthemEn = "O say can you see, by the dawn's early light,\nWhat so proudly we hailed at the twilight's last gleaming,\nWhose broad stripes and bright stars through the perilous fight,\nO'er the ramparts we watched, were so gallantly streaming?\nAnd the rocket's red glare, the bombs bursting in air,\nGave proof through the night that our flag was still there;\nO say does that star-spangled banner yet wave\nO'er the land of the free and the home of the brave?";
-            var anthemJa = "おお、見えるか、夜明けの早い光の中に、\n黄昏の最後の光に我らが誇り高く称えたものを。\n広い縞と輝く星々を、激しい戦いの中、\n我らが見守った城壁の上に、勇ましくはためいていたものを。\nロケットの赤い閃光、空中で炸裂する爆弾は、\n夜を通して我らの旗がなおそこにあることを証していた。\nおお、星条旗はなおはためいているか、\n自由の地、勇者の故郷の上に。";
-            var anthemHistJa = "1814年、米英戦争中の9月13〜14日にかけて、イギリス海軍がメリーランド州ボルティモア港のマクヘンリー砦を25時間にわたって砲撃した。砦は持ちこたえ、翌朝の薄明かりの中、巨大な星条旗（縦9.1m×横12.8m、現在スミソニアン博物館に展示）が砦の上にはためいているのを、捕虜交換交渉のためイギリス艦に滞在していた弁護士フランシス・スコット・キー（35歳）が目撃した。\n\nキーは深く感動し、その場で詩「マクヘンリー砦の防衛 (Defence of Fort M'Henry)」を書き上げた。この詩は当時イギリスで人気のあった酒場の歌「天国のアナクレオンへ (To Anacreon in Heaven)」の旋律に乗せて歌われるようになり、瞬く間に全米に広まった。\n\n19世紀を通じて軍隊や愛国行事で歌われてきたが、正式に**国歌**として法律で制定されたのは117年後の**1931年3月3日**（ハーバート・フーバー大統領の署名による）。歌は4節からなるが、公式・非公式の場で歌われるのはほぼ常に第1節のみ。第3節にはイギリス兵への辛辣な表現があるため、米英関係を考慮して通常省略される。\n\nオリジナルの巨大旗（Star-Spangled Banner Flag）は摩耗が激しかったが、スミソニアン国立アメリカ歴史博物館で大規模修復を経て、現在も主要展示として公開されている。";
-
-            var pledgeEn = "I pledge allegiance to the Flag of the United States of America, and to the Republic for which it stands, one Nation under God, indivisible, with liberty and justice for all.";
-            var pledgeJa = "私は、アメリカ合衆国の国旗、ならびにその国旗が表す共和国、すなわち神の下にある一つの国家、分かつことのできない、すべての人に自由と正義を約束する国家に、忠誠を誓います。";
-            var pledgeHistJa = "1892年、雑誌「The Youth's Companion」誌の編集者で社会主義者の牧師フランシス・ベラミー（Francis Bellamy, 1855–1931）が、コロンブスの新大陸到達400周年記念のために執筆した。同年10月12日（コロンブス・デー）、全米の学校で初めて子供たちが声を揃えて朗唱し、以後**学校での朝の朗唱**として定着した。\n\nオリジナルの誓いは以下の34語: 「I pledge allegiance to my Flag and the Republic for which it stands, one nation indivisible, with liberty and justice for all.」\n\n歴史を通じて2回大きな修正が加えられた:\n• **1923年**: 「my Flag」が「the Flag of the United States of America」に変更（移民の子供が母国の国旗を思い浮かべないようにするため）\n• **1954年**: 冷戦下、無神論的な共産主義に対抗する意図でアイゼンハワー大統領の署名により「**under God（神の下に）**」が追加された\n\n朗唱時は右手を心臓に当てるのが標準作法（**hand over heart**）。1942年までは「ベラミー式敬礼（右腕を斜め前に伸ばす）」が使われていたが、ナチス式敬礼と酷似していたため第二次大戦中に廃止された。\n\n1943年の最高裁判決「ウェスト・バージニア州教育委員会対バーネット (West Virginia State Board of Education v. Barnette)」で、生徒が信仰や思想を理由に朗唱を**拒否する権利**が憲法上保護されると判示された。「1つの星も光らない夜空はない」「official orthodoxy（公定正統思想）を強制する権限を政府は持たない」とジャクソン判事は記した。";
-
-            app.innerHTML = '<div style="max-width: 900px; margin: 0 auto; padding: 0 16px;">'
+        function renderWorldHeritage(app) {
+            var catColor = function(c){ return c==='Cultural'?'#b45309':c==='Natural'?'#065f46':c==='Mixed'?'#7c3aed':'#6b7280'; };
+            if (state.whDetailIdx !== null && state.whDetailIdx !== undefined) {
+                var s = usWorldHeritage[state.whDetailIdx];
+                if (!s) { state.whDetailIdx = null; renderWorldHeritage(app); return; }
+                var cc = catColor(s.category);
+                var idx = state.whDetailIdx;
+                var prevDisabled = idx <= 0;
+                var nextDisabled = idx >= usWorldHeritage.length - 1;
+                var keyFactsHtml = (s.keyFactsJa && s.keyFactsJa.length) ?
+                    '<h3 style="font-family: Merriweather, serif; color: ' + cc + '; font-size: 16px; margin: 18px 0 10px;">Key Facts</h3>'
+                    + '<ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #374151; line-height: 1.8;">'
+                    + s.keyFactsJa.map(function(e){ return '<li style="margin-bottom: 5px;">' + e + '</li>'; }).join('') + '</ul>' : '';
+                var summaryBlock = s.summaryJa ? '<div style="margin-top: 16px; padding: 14px 16px; background: #f9fafb; border-left: 4px solid ' + cc + '; border-radius: 0 8px 8px 0; font-size: 14px; color: #374151; line-height: 1.9;">📝 ' + s.summaryJa + '</div>' : '';
+                var funFactBlock = s.funFact ? '<div style="margin-top: 18px; padding: 12px 16px; border: 1px dashed #d1d5db; border-radius: 6px; font-size: 13px; color: #6b7280; font-style: italic;">✨ ' + s.funFact + '</div>' : '';
+                var detailImg = (typeof getWHImg === 'function') ? getWHImg(idx) : null;
+                var imgBlock = detailImg ? '<div style="width: 100%; max-height: 360px; overflow: hidden;"><img src="' + detailImg + '" referrerpolicy="no-referrer" loading="lazy" onerror="this.parentNode.remove()" style="width: 100%; height: 360px; object-fit: cover;"></div>' : '';
+                app.innerHTML = '<div style="max-width: 900px; margin: 0 auto; padding: 0 16px;">'
+                    + '<div style="display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap;">'
+                    + '<button class="btn-back" onclick="closeWHDetail()">&larr; All Sites</button>'
+                    + '<button class="btn-back" onclick="goToDashboard()">&larr; Dashboard</button>'
+                    + '<div style="flex: 1;"></div>'
+                    + '<button class="btn-back" onclick="' + (prevDisabled ? '' : 'openWHDetail(' + (idx - 1) + ')') + '" ' + (prevDisabled ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : '') + '>&larr; Prev</button>'
+                    + '<span style="font-size: 12px; color: #6b7280;">' + (idx + 1) + ' / ' + usWorldHeritage.length + '</span>'
+                    + '<button class="btn-back" onclick="' + (nextDisabled ? '' : 'openWHDetail(' + (idx + 1) + ')') + '" ' + (nextDisabled ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : '') + '>Next &rarr;</button>'
+                    + '</div>'
+                    + '<div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">'
+                    + imgBlock
+                    + '<div style="background: linear-gradient(135deg, ' + cc + ', ' + cc + 'cc); padding: 22px 26px; color: white;">'
+                    + '<span style="padding: 3px 10px; background: rgba(255,255,255,0.22); border-radius: 12px; font-size: 12px; font-weight: 700;">' + s.category.toUpperCase() + '</span>'
+                    + '<div style="font-family: Merriweather, serif; font-size: 24px; font-weight: 700; margin-top: 8px;">' + s.name + '</div>'
+                    + '<div style="font-size: 15px; opacity: 0.92; margin-top: 4px;">' + s.nameJa + '</div>'
+                    + '<div style="font-size: 13px; opacity: 0.82; margin-top: 6px;">📍 ' + s.location + ' (' + s.locationJa + ')</div>'
+                    + '</div>'
+                    + '<div style="padding: 22px 26px;">' + summaryBlock + keyFactsHtml + funFactBlock + '</div>'
+                    + '</div></div>';
+                if (typeof ensureWHImagesLoaded === 'function' && !whImagesLoaded) ensureWHImagesLoaded(function(){ if (state.page === 'worldheritage') render(); });
+                return;
+            }
+            var search = (state.whSearch || '').toLowerCase().trim();
+            var catFilter = state.whCategoryFilter || 'all';
+            var legendHtml = '<div style="display: flex; gap: 10px; justify-content: center; margin: 8px 0 14px; flex-wrap: wrap;">'
+                + ['Cultural','Natural','Mixed'].map(function(c){
+                    var cnt = usWorldHeritage.filter(function(s){return s.category===c}).length;
+                    var active = catFilter === c;
+                    return '<button onclick="setWHCategory(\'' + (active?'all':c) + '\')" style="padding: 5px 12px; border-radius: 999px; border: 1px solid ' + catColor(c) + '; background: ' + (active ? catColor(c) : catColor(c) + '14') + '; color: ' + (active ? 'white' : catColor(c)) + '; font-weight: 700; cursor: pointer; font-size: 12px;">' + c + ' (' + cnt + ')</button>';
+                }).join('') + '</div>';
+            var searchHtml = '<div style="display: flex; justify-content: center; margin-bottom: 18px;"><input id="wh-search-input" type="text" placeholder="検索…" value="' + (state.whSearch || '').replace(/"/g, '&quot;') + '" oninput="setWHSearch(this.value)" style="width: 100%; max-width: 380px; padding: 9px 14px; border: 1px solid #d1d5db; border-radius: 999px; font-size: 14px;" /></div>';
+            var filtered = usWorldHeritage.map(function(s, i){ return { s:s, i:i }; }).filter(function(o){
+                if (catFilter !== 'all' && o.s.category !== catFilter) return false;
+                if (search && o.s.name.toLowerCase().indexOf(search) < 0 && (o.s.nameJa||'').toLowerCase().indexOf(search) < 0) return false;
+                return true;
+            });
+            var cardsHtml = filtered.map(function(o){
+                var s = o.s, i = o.i;
+                var cc = catColor(s.category);
+                var cardImg = (typeof getWHImg === 'function') ? getWHImg(i) : null;
+                var imgHtml = cardImg ? '<div style="height: 160px; overflow: hidden;"><img src="' + cardImg + '" referrerpolicy="no-referrer" loading="lazy" onerror="this.style.display=\'none\'" style="width: 100%; height: 100%; object-fit: cover;"></div>' : '<div style="height: 160px; background: linear-gradient(135deg, ' + cc + '20, ' + cc + '40); display: flex; align-items: center; justify-content: center; color: ' + cc + '; font-size: 14px;">' + (typeof whImagesLoaded !== 'undefined' && whImagesLoaded ? '🏛️' : '読込中…') + '</div>';
+                return '<div onclick="openWHDetail(' + i + ')" style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; cursor: pointer;">'
+                    + imgHtml
+                    + '<div style="padding: 14px 16px;">'
+                    + '<span style="padding: 2px 8px; background: ' + cc + '22; color: ' + cc + '; border-radius: 8px; font-size: 10px; font-weight: 700;">' + s.category.toUpperCase() + '</span>'
+                    + '<div style="font-family: Merriweather, serif; font-size: 14px; font-weight: 700; margin-top: 6px;">' + s.name + '</div>'
+                    + '<div style="font-size: 12px; color: #6b7280; margin-top: 3px;">' + s.nameJa + '</div>'
+                    + '</div></div>';
+            }).join('');
+            app.innerHTML = '<div style="max-width: 1100px; margin: 0 auto; padding: 0 16px;">'
                 + '<button class="btn-back" onclick="goToDashboard()">&larr; Dashboard</button>'
-                + '<h2 style="font-family: Merriweather, serif; color: var(--navy); text-align: center; margin: 16px 0 6px 0; font-size: 22px;">🎵 The Star-Spangled Banner &amp; The Pledge of Allegiance</h2>'
-                + '<p style="text-align: center; color: #6b7280; margin-bottom: 24px; font-size: 13px;">アメリカ国歌と忠誠の誓い &middot; 原文+和訳+歴史背景</p>'
-
-                // ===== Star-Spangled Banner =====
-                + '<div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; margin-bottom: 22px;">'
-                + '<div style="background: linear-gradient(135deg, ' + red + ', ' + red + 'cc); padding: 22px 26px; color: white;">'
-                + '<div style="font-size: 12px; opacity: 0.85; letter-spacing: 0.06em; font-weight: 700;">NATIONAL ANTHEM &middot; 国歌</div>'
-                + '<div style="font-family: Merriweather, serif; font-size: 26px; font-weight: 700; margin-top: 4px;">The Star-Spangled Banner</div>'
-                + '<div style="font-size: 15px; opacity: 0.92; margin-top: 4px;">星条旗</div>'
-                + '<div style="font-size: 12px; opacity: 0.82; margin-top: 6px; font-style: italic;">Francis Scott Key (1814) &middot; Adopted as national anthem 1931</div>'
-                + '</div>'
-                + '<div style="padding: 24px 28px;">'
-                + '<h3 style="font-family: Merriweather, serif; color: ' + red + '; font-size: 16px; margin: 0 0 10px;">🎼 Lyrics (1st verse) &mdash; 歌詞 (第1節)</h3>'
-                + '<div style="font-family: Merriweather, serif; font-style: italic; font-size: 15px; line-height: 1.95; color: #1f2937; padding: 14px 16px; background: #fef2f2; border-left: 4px solid ' + red + '; border-radius: 0 6px 6px 0; white-space: pre-wrap;">' + anthemEn + '</div>'
-                + '<div style="font-size: 13px; line-height: 1.95; color: #374151; padding: 14px 16px; background: #f9fafb; border-left: 4px solid ' + red + '60; border-radius: 0 6px 6px 0; margin-top: 12px; white-space: pre-wrap;">📝 ' + anthemJa + '</div>'
-                + '<h3 style="font-family: Merriweather, serif; color: ' + red + '; font-size: 16px; margin: 24px 0 10px;">📖 歴史 &mdash; History</h3>'
-                + '<div style="font-size: 14px; line-height: 1.95; color: #374151; white-space: pre-wrap;">' + anthemHistJa + '</div>'
-                + '</div></div>'
-
-                // ===== Pledge of Allegiance =====
-                + '<div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; margin-bottom: 30px;">'
-                + '<div style="background: linear-gradient(135deg, ' + navy + ', ' + navy + 'cc); padding: 22px 26px; color: white;">'
-                + '<div style="font-size: 12px; opacity: 0.85; letter-spacing: 0.06em; font-weight: 700;">CIVIC OATH &middot; 忠誠の誓い</div>'
-                + '<div style="font-family: Merriweather, serif; font-size: 26px; font-weight: 700; margin-top: 4px;">The Pledge of Allegiance</div>'
-                + '<div style="font-size: 15px; opacity: 0.92; margin-top: 4px;">忠誠の誓い</div>'
-                + '<div style="font-size: 12px; opacity: 0.82; margin-top: 6px; font-style: italic;">Francis Bellamy (1892) &middot; &quot;under God&quot; added 1954</div>'
-                + '</div>'
-                + '<div style="padding: 24px 28px;">'
-                + '<h3 style="font-family: Merriweather, serif; color: ' + navy + '; font-size: 16px; margin: 0 0 10px;">✋ Text &mdash; 誓いの言葉</h3>'
-                + '<div style="font-family: Merriweather, serif; font-style: italic; font-size: 15px; line-height: 2.0; color: #1f2937; padding: 14px 16px; background: #eff6ff; border-left: 4px solid ' + navy + '; border-radius: 0 6px 6px 0;">' + pledgeEn + '</div>'
-                + '<div style="font-size: 13px; line-height: 2.0; color: #374151; padding: 14px 16px; background: #f9fafb; border-left: 4px solid ' + navy + '60; border-radius: 0 6px 6px 0; margin-top: 12px;">📝 ' + pledgeJa + '</div>'
-                + '<h3 style="font-family: Merriweather, serif; color: ' + navy + '; font-size: 16px; margin: 24px 0 10px;">📖 歴史 &mdash; History</h3>'
-                + '<div style="font-size: 14px; line-height: 1.95; color: #374151; white-space: pre-wrap;">' + pledgeHistJa + '</div>'
-                + '</div></div>'
-
+                + '<h2 style="font-family: Merriweather, serif; color: var(--navy); text-align: center; margin: 16px 0 6px 0; font-size: 22px;">🏛️ U.S. UNESCO World Heritage Sites</h2>'
+                + legendHtml
+                + '<div id="wh-map-svg" style="max-width: 900px; margin: 0 auto 14px; min-height: 360px;"></div>'
+                + searchHtml
+                + '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; margin-bottom: 30px;">' + cardsHtml + '</div>'
                 + '</div>';
+            setTimeout(function(){ if (typeof drawWorldHeritageMap === 'function') drawWorldHeritageMap(); }, 0);
+            if (typeof ensureWHImagesLoaded === 'function' && !whImagesLoaded) ensureWHImagesLoaded(function(){ if (state.page === 'worldheritage') render(); });
         }
 
-        // ========== MILITARY ==========
+        function openAnthem() { state.page = 'anthem'; state.anthemTab = state.anthemTab || 'anthem'; render(); window.scrollTo(0, 0); }
+        function setAnthemTab(t) { state.anthemTab = t; render(); window.scrollTo(0, 0); }
+
+        function renderAnthem(app) {
+            var red = '#b91c1c', navy = '#1e3a5f', amber = '#92400e';
+            var anthemEn = "O say can you see, by the dawn's early light,\nWhat so proudly we hailed at the twilight's last gleaming,\nWhose broad stripes and bright stars through the perilous fight,\nO'er the ramparts we watched, were so gallantly streaming?\nAnd the rocket's red glare, the bombs bursting in air,\nGave proof through the night that our flag was still there;\nO say does that star-spangled banner yet wave\nO'er the land of the free and the home of the brave?";
+            var anthemJa = "おお、見えるか、夜明けの早い光の中に、\n黄昏の最後の光に我らが誇り高く称えたものを。\n広い縞と輝く星々を、激しい戦いの中、\n我らが見守った城壁の上に、勇ましくはためいていたものを。\nロケットの赤い閃光、空中で炸裂する爆弾は、\n夜を通して我らの旗がなおそこにあることを証していた。\nおお、星条旗はなおはためいているか、\n自由の地、勇者の故郷の上に。";
+            var anthemHistJa = "1814年9月13〜14日、イギリス海軍がメリーランド州ボルティモア港のマクヘンリー砦を25時間にわたって砲撃した。砦は持ちこたえ、翌朝、フランシス・スコット・キーが詩「マクヘンリー砦の防衛」を書いた。1931年3月3日、フーバー大統領が署名して正式国歌となった。歌は4節からなるが、通常歌うのは第1節のみ。";
+            var pledgeEn = "I pledge allegiance to the Flag of the United States of America, and to the Republic for which it stands, one Nation under God, indivisible, with liberty and justice for all.";
+            var pledgeJa = "私は、アメリカ合衆国の国旗、ならびにその国旗が表す共和国、すなわち神の下にある一つの国家、分かつことのできない、すべての人に自由と正義を約束する国家に、忠誠を誓います。";
+            var pledgeHistJa = "1892年、フランシス・ベラミー牧師がコロンブス・デー400周年のために執筆。1923年に「my Flag」が「the Flag of the United States of America」に変更。1954年、冷戦下でアイゼンハワー大統領の署名により「under God」が追加。1943年バーネット判決で、信仰や思想を理由に朗唱を拒否する権利が憲法上保護されると判示。";
+            var warHistJa = "国歌「星条旗」が生まれた1814年のマクヘンリー砦砲撃を理解するには、その背景にあった2つの戦争を押さえる必要がある。すなわち、ヨーロッパで20年以上続いていた英仏戦争（ナポレオン戦争）と、その余波として勃発した米英戦争（1812年戦争）である。\n\n【1. 英仏戦争（ナポレオン戦争、1803〜1815年）】\nフランス革命とナポレオンの台頭により、ヨーロッパは20年以上の大戦争状態に。1805年トラファルガー海戦でイギリスが制海権を確立。1806年ベルリン勅令でナポレオンが「大陸封鎖令」を発令。英国は対抗策として「枢密院令」で中立国の対仏貿易を妨害。米国は中立国として板挟みになった。\n\n【2. 強制徴募（Impressment）】\n英国海軍は対仏戦争で水兵不足に陥り、米国商船から「逃亡水兵」名目で水兵を強制連行。1803〜1812年で約6,000人の米国市民が連行された。1807年「チェサピーク号事件」で米国民の対英感情が爆発。\n\n【3. 米英戦争（1812〜1815年）】\nマディソン大統領が1812年6月18日に英国へ宣戦布告。1814年8月24日、英軍がワシントンD.C.を焼き討ち（議事堂・ホワイトハウス炎上）。9月13〜14日、マクヘンリー砦の戦いで英軍を撃退、ここで星条旗が書かれた。1814年12月ガン条約で講和。1815年1月ニューオーリンズの戦いでジャクソン将軍が大勝（後の第7代大統領）。\n\n【4. 「第二次独立戦争」としての意義】\n米国は英国との対等な講和により国としての地位を確立。国歌「星条旗」、ニューオーリンズ勝利が国民的アイデンティティを醸成。後のモンロー・ドクトリン（1823年）への道を開いた。\n\nつまり国歌「星条旗」は、ヨーロッパの英仏戦争の波及効果として生じた米英戦争の最も劇的な場面から生まれた愛国の歌である。";
+            var tab = state.anthemTab || 'anthem';
+            var tabBtn = function(id, label, color) {
+                var active = tab === id;
+                return '<button onclick="setAnthemTab(\'' + id + '\')" style="flex: 1; padding: 12px 16px; border: none; background: ' + (active ? color : 'transparent') + '; color: ' + (active ? 'white' : color) + '; font-size: 14px; font-weight: 700; cursor: pointer; border-radius: 8px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">' + label + '</button>';
+            };
+            var tabsHtml = '<div style="display: flex; gap: 4px; padding: 4px; background: rgba(0,33,71,0.06); border-radius: 10px; margin: 0 auto 22px; max-width: 720px;">'
+                + tabBtn('anthem', '🎵 国歌', red) + tabBtn('pledge', '✋ 忠誠の誓い', navy) + tabBtn('war', '⚔️ 戦争背景', amber)
+                + '</div>';
+            var content;
+            if (tab === 'pledge') {
+                content = '<div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; margin-bottom: 30px;">'
+                    + '<div style="background: linear-gradient(135deg, ' + navy + ', ' + navy + 'cc); padding: 22px 26px; color: white;">'
+                    + '<div style="font-size: 12px; opacity: 0.85; font-weight: 700;">CIVIC OATH &middot; 忠誠の誓い</div>'
+                    + '<div style="font-family: Merriweather, serif; font-size: 26px; font-weight: 700; margin-top: 4px;">The Pledge of Allegiance</div>'
+                    + '<div style="font-size: 12px; opacity: 0.82; margin-top: 6px; font-style: italic;">Francis Bellamy (1892) &middot; &quot;under God&quot; added 1954</div>'
+                    + '</div>'
+                    + '<div style="padding: 24px 28px;">'
+                    + '<h3 style="font-family: Merriweather, serif; color: ' + navy + '; font-size: 16px; margin: 0 0 10px;">✋ Text &mdash; 誓いの言葉</h3>'
+                    + '<div style="font-family: Merriweather, serif; font-style: italic; font-size: 15px; line-height: 2.0; padding: 14px 16px; background: #eff6ff; border-left: 4px solid ' + navy + '; border-radius: 0 6px 6px 0;">' + pledgeEn + '</div>'
+                    + '<div style="font-size: 13px; line-height: 2.0; color: #374151; padding: 14px 16px; background: #f9fafb; border-left: 4px solid ' + navy + '60; margin-top: 12px;">📝 ' + pledgeJa + '</div>'
+                    + '<h3 style="font-family: Merriweather, serif; color: ' + navy + '; font-size: 16px; margin: 24px 0 10px;">📖 歴史</h3>'
+                    + '<div style="font-size: 14px; line-height: 1.95; color: #374151; white-space: pre-wrap;">' + pledgeHistJa + '</div>'
+                    + '</div></div>';
+            } else if (tab === 'war') {
+                content = '<div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; margin-bottom: 30px;">'
+                    + '<div style="background: linear-gradient(135deg, ' + amber + ', ' + amber + 'cc); padding: 22px 26px; color: white;">'
+                    + '<div style="font-size: 12px; opacity: 0.85; font-weight: 700;">WAR BACKGROUND &middot; 戦争背景</div>'
+                    + '<div style="font-family: Merriweather, serif; font-size: 24px; font-weight: 700; margin-top: 4px;">War of 1812 &amp; Napoleonic Wars</div>'
+                    + '<div style="font-size: 15px; opacity: 0.92; margin-top: 4px;">米英戦争と英仏戦争</div>'
+                    + '<div style="font-size: 12px; opacity: 0.82; margin-top: 6px; font-style: italic;">1803&ndash;1815 &middot; なぜ国歌は1814年に生まれたのか</div>'
+                    + '</div>'
+                    + '<div style="padding: 24px 28px;">'
+                    + '<div style="font-size: 14px; line-height: 1.95; color: #374151; white-space: pre-wrap;">' + warHistJa + '</div>'
+                    + '</div></div>';
+            } else {
+                content = '<div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; margin-bottom: 30px;">'
+                    + '<div style="background: linear-gradient(135deg, ' + red + ', ' + red + 'cc); padding: 22px 26px; color: white;">'
+                    + '<div style="font-size: 12px; opacity: 0.85; font-weight: 700;">NATIONAL ANTHEM &middot; 国歌</div>'
+                    + '<div style="font-family: Merriweather, serif; font-size: 26px; font-weight: 700; margin-top: 4px;">The Star-Spangled Banner</div>'
+                    + '<div style="font-size: 12px; opacity: 0.82; margin-top: 6px; font-style: italic;">Francis Scott Key (1814) &middot; Adopted 1931</div>'
+                    + '</div>'
+                    + '<div style="padding: 24px 28px;">'
+                    + '<h3 style="font-family: Merriweather, serif; color: ' + red + '; font-size: 16px; margin: 0 0 10px;">🎼 Lyrics (1st verse)</h3>'
+                    + '<div style="font-family: Merriweather, serif; font-style: italic; font-size: 15px; line-height: 1.95; padding: 14px 16px; background: #fef2f2; border-left: 4px solid ' + red + '; border-radius: 0 6px 6px 0; white-space: pre-wrap;">' + anthemEn + '</div>'
+                    + '<div style="font-size: 13px; line-height: 1.95; color: #374151; padding: 14px 16px; background: #f9fafb; border-left: 4px solid ' + red + '60; margin-top: 12px; white-space: pre-wrap;">📝 ' + anthemJa + '</div>'
+                    + '<h3 style="font-family: Merriweather, serif; color: ' + red + '; font-size: 16px; margin: 24px 0 10px;">📖 歴史</h3>'
+                    + '<div style="font-size: 14px; line-height: 1.95; color: #374151; white-space: pre-wrap;">' + anthemHistJa + '</div>'
+                    + '<div style="margin-top: 16px; padding: 10px 14px; background: ' + amber + '12; border-left: 3px solid ' + amber + '; border-radius: 0 6px 6px 0; font-size: 12px; color: #92400e;">⚔️ 戦争背景の詳細は「戦争背景」タブを参照</div>'
+                    + '</div></div>';
+            }
+            app.innerHTML = '<div style="max-width: 900px; margin: 0 auto; padding: 0 16px;">'
+                + '<button class="btn-back" onclick="goToDashboard()">&larr; Dashboard</button>'
+                + '<h2 style="font-family: Merriweather, serif; color: var(--navy); text-align: center; margin: 16px 0 6px 0; font-size: 22px;">🎵 国歌 &amp; 忠誠の誓い</h2>'
+                + '<p style="text-align: center; color: #6b7280; margin-bottom: 18px; font-size: 13px;">国歌・忠誠の誓い・戦争背景</p>'
+                + tabsHtml + content + '</div>';
+        }
+
         function openMilitary() { state.page = 'military'; state.militaryDetailIdx = null; render(); window.scrollTo(0, 0); }
         function openMilitaryDetail(idx) { state.militaryDetailIdx = idx; render(); window.scrollTo(0, 0); }
         function closeMilitaryDetail() { state.militaryDetailIdx = null; render(); }
@@ -8479,8 +8554,7 @@
                 var m = usMilitary[state.militaryDetailIdx];
                 if (!m) { state.militaryDetailIdx = null; renderMilitary(app); return; }
                 var idx = state.militaryDetailIdx;
-                var prevDisabled = idx <= 0;
-                var nextDisabled = idx >= usMilitary.length - 1;
+                var prevDisabled = idx <= 0, nextDisabled = idx >= usMilitary.length - 1;
                 var keyFactsHtml = (m.keyFactsJa && m.keyFactsJa.length) ?
                     '<h3 style="font-family: Merriweather, serif; color: ' + m.color + '; font-size: 16px; margin: 18px 0 10px;">Key Facts</h3>'
                     + '<ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #374151; line-height: 1.8;">'
@@ -8488,9 +8562,9 @@
                 var famousHtml = (m.famousJa && m.famousJa.length) ?
                     '<h3 style="font-family: Merriweather, serif; color: ' + m.color + '; font-size: 16px; margin: 18px 0 10px;">Famous People</h3>'
                     + '<div style="display: flex; flex-wrap: wrap; gap: 8px;">'
-                    + m.famousJa.map(function(p){ return '<span style="display: inline-block; padding: 4px 10px; background: ' + m.color + '14; color: ' + m.color + '; border: 1px solid ' + m.color + '40; border-radius: 999px; font-size: 12px; font-weight: 600;">' + p + '</span>'; }).join('')
+                    + m.famousJa.map(function(p){ return '<span style="padding: 4px 10px; background: ' + m.color + '14; color: ' + m.color + '; border: 1px solid ' + m.color + '40; border-radius: 999px; font-size: 12px; font-weight: 600;">' + p + '</span>'; }).join('')
                     + '</div>' : '';
-                var summaryBlock = m.summaryJa ? '<div style="margin-top: 16px; padding: 14px 16px; background: #f9fafb; border-left: 4px solid ' + m.color + '; border-radius: 0 8px 8px 0; font-size: 14px; color: #374151; line-height: 1.9;">📝 ' + m.summaryJa + '</div>' : '';
+                var summaryBlock = m.summaryJa ? '<div style="margin-top: 16px; padding: 14px 16px; background: #f9fafb; border-left: 4px solid ' + m.color + '; border-radius: 0 8px 8px 0; font-size: 14px; line-height: 1.9;">📝 ' + m.summaryJa + '</div>' : '';
                 var funFactBlock = m.funFact ? '<div style="margin-top: 18px; padding: 12px 16px; border: 1px dashed #d1d5db; border-radius: 6px; font-size: 13px; color: #6b7280; font-style: italic;">✨ ' + m.funFact + '</div>' : '';
                 app.innerHTML = '<div style="max-width: 900px; margin: 0 auto; padding: 0 16px;">'
                     + '<div style="display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap;">'
@@ -8503,7 +8577,7 @@
                     + '</div>'
                     + '<div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">'
                     + '<div style="background: linear-gradient(135deg, ' + m.color + ', ' + m.color + 'cc); padding: 26px; color: white; display: flex; gap: 20px; align-items: center;">'
-                    + '<div style="font-size: 56px; flex-shrink: 0;">' + m.icon + '</div>'
+                    + '<div style="font-size: 56px;">' + m.icon + '</div>'
                     + '<div>'
                     + '<div style="font-family: Merriweather, serif; font-size: 26px; font-weight: 700;">' + m.name + ' (' + m.abbr + ')</div>'
                     + '<div style="font-size: 16px; opacity: 0.9; margin-top: 4px;">' + m.nameJa + '</div>'
@@ -8522,8 +8596,8 @@
             }
             var cardsHtml = usMilitary.map(function(m, i){
                 return '<div onclick="openMilitaryDetail(' + i + ')" style="background: white; border: 1px solid #e5e7eb; border-top: 4px solid ' + m.color + '; border-radius: 10px; padding: 18px 20px; cursor: pointer; display: flex; gap: 14px; align-items: center;">'
-                    + '<div style="font-size: 38px; flex-shrink: 0;">' + m.icon + '</div>'
-                    + '<div style="flex: 1; min-width: 0;">'
+                    + '<div style="font-size: 38px;">' + m.icon + '</div>'
+                    + '<div style="flex: 1;">'
                     + '<div style="font-family: Merriweather, serif; font-size: 15px; font-weight: 700; color: ' + m.color + ';">' + m.name + '</div>'
                     + '<div style="font-size: 13px; color: #4b5563; margin-top: 2px;">' + m.nameJa + ' (' + m.abbr + ')</div>'
                     + '<div style="font-size: 11px; color: #9ca3af; margin-top: 4px;">設立 ' + m.founded + ' &middot; 兵力 ' + (m.personnel/1000).toFixed(0) + 'k</div>'
@@ -8531,13 +8605,12 @@
             }).join('');
             app.innerHTML = '<div style="max-width: 1000px; margin: 0 auto; padding: 0 16px;">'
                 + '<button class="btn-back" onclick="goToDashboard()">&larr; Dashboard</button>'
-                + '<h2 style="font-family: Merriweather, serif; color: var(--navy); text-align: center; margin: 16px 0 6px 0; font-size: 22px;">🪖 U.S. Military Branches &mdash; 米軍6軍種</h2>'
-                + '<p style="text-align: center; color: #6b7280; margin-bottom: 24px; font-size: 13px;">陸軍・海軍・海兵隊・空軍・沿岸警備隊・宇宙軍 &middot; クリックで詳細</p>'
+                + '<h2 style="font-family: Merriweather, serif; color: var(--navy); text-align: center; margin: 16px 0 6px 0; font-size: 22px;">🪖 U.S. Military Branches</h2>'
+                + '<p style="text-align: center; color: #6b7280; margin-bottom: 24px; font-size: 13px;">陸軍・海軍・海兵隊・空軍・沿岸警備隊・宇宙軍</p>'
                 + '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px;">' + cardsHtml + '</div>'
                 + '</div>';
         }
 
-        // ========== FINANCE ==========
         function openFinance() { state.page = 'finance'; state.financeDetailIdx = null; state.financeTypeFilter = 'all'; render(); window.scrollTo(0, 0); }
         function openFinanceDetail(idx) { state.financeDetailIdx = idx; render(); window.scrollTo(0, 0); }
         function closeFinanceDetail() { state.financeDetailIdx = null; render(); }
@@ -8550,13 +8623,12 @@
                 if (!f) { state.financeDetailIdx = null; renderFinance(app); return; }
                 var c = f.color || typeColor(f.type);
                 var idx = state.financeDetailIdx;
-                var prevDisabled = idx <= 0;
-                var nextDisabled = idx >= usFinance.length - 1;
+                var prevDisabled = idx <= 0, nextDisabled = idx >= usFinance.length - 1;
                 var keyFactsHtml = (f.keyFactsJa && f.keyFactsJa.length) ?
                     '<h3 style="font-family: Merriweather, serif; color: ' + c + '; font-size: 16px; margin: 18px 0 10px;">Key Facts</h3>'
                     + '<ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #374151; line-height: 1.8;">'
                     + f.keyFactsJa.map(function(e){ return '<li style="margin-bottom: 5px;">' + e + '</li>'; }).join('') + '</ul>' : '';
-                var summaryBlock = f.summaryJa ? '<div style="margin-top: 16px; padding: 14px 16px; background: #f9fafb; border-left: 4px solid ' + c + '; border-radius: 0 8px 8px 0; font-size: 14px; color: #374151; line-height: 1.9;">📝 ' + f.summaryJa + '</div>' : '';
+                var summaryBlock = f.summaryJa ? '<div style="margin-top: 16px; padding: 14px 16px; background: #f9fafb; border-left: 4px solid ' + c + '; border-radius: 0 8px 8px 0; font-size: 14px; line-height: 1.9;">📝 ' + f.summaryJa + '</div>' : '';
                 var funFactBlock = f.funFact ? '<div style="margin-top: 18px; padding: 12px 16px; border: 1px dashed #d1d5db; border-radius: 6px; font-size: 13px; color: #6b7280; font-style: italic;">✨ ' + f.funFact + '</div>' : '';
                 app.innerHTML = '<div style="max-width: 900px; margin: 0 auto; padding: 0 16px;">'
                     + '<div style="display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap;">'
@@ -8569,14 +8641,14 @@
                     + '</div>'
                     + '<div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">'
                     + '<div style="background: linear-gradient(135deg, ' + c + ', ' + c + 'cc); padding: 26px; color: white; display: flex; gap: 20px; align-items: center;">'
-                    + '<div style="font-size: 48px; flex-shrink: 0;">' + f.icon + '</div>'
+                    + '<div style="font-size: 48px;">' + f.icon + '</div>'
                     + '<div>'
-                    + '<div style="font-size: 11px; opacity: 0.85; letter-spacing: 0.05em; font-weight: 700;">' + typeLabel(f.type).toUpperCase() + (f.type==='exchange'?' / EXCHANGE':f.type==='index'?' / INDEX':' / COMPANY') + '</div>'
+                    + '<div style="font-size: 11px; opacity: 0.85; font-weight: 700;">' + typeLabel(f.type).toUpperCase() + '</div>'
                     + '<div style="font-family: Merriweather, serif; font-size: 22px; font-weight: 700; margin-top: 4px;">' + f.name + '</div>'
                     + '<div style="font-size: 14px; opacity: 0.92; margin-top: 4px;">' + f.nameJa + '</div>'
                     + '</div></div>'
                     + '<div style="padding: 24px 28px;">'
-                    + '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; color: #4b5563;">'
+                    + '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">'
                     + '<div><strong>Founded:</strong> ' + f.founded + '</div>'
                     + (f.hq ? '<div><strong>HQ:</strong> ' + f.hq + '</div>' : '')
                     + (f.marketCap ? '<div><strong>Market Cap:</strong> ' + f.marketCap + '</div>' : '')
@@ -8586,9 +8658,8 @@
                 return;
             }
             var tf = state.financeTypeFilter || 'all';
-            var types = ['exchange','index','company'];
             var filterHtml = '<div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px;">'
-                + types.map(function(t){
+                + ['exchange','index','company'].map(function(t){
                     var active = tf === t;
                     return '<button onclick="setFinanceType(\'' + (active?'all':t) + '\')" style="padding: 5px 14px; border-radius: 999px; border: 1px solid ' + typeColor(t) + '; background: ' + (active ? typeColor(t) : 'transparent') + '; color: ' + (active ? 'white' : typeColor(t)) + '; font-size: 12px; font-weight: 700; cursor: pointer;">' + typeLabel(t) + '</button>';
                 }).join('') + '</div>';
@@ -8600,8 +8671,8 @@
                     + '<div style="display: flex; gap: 12px; align-items: center; margin-bottom: 8px;">'
                     + '<div style="font-size: 28px;">' + f.icon + '</div>'
                     + '<div>'
-                    + '<span style="display: inline-block; padding: 2px 8px; background: ' + c + '20; color: ' + c + '; border-radius: 8px; font-size: 10px; font-weight: 700;">' + typeLabel(f.type).toUpperCase() + '</span>'
-                    + '<div style="font-family: Merriweather, serif; font-size: 14px; font-weight: 700; color: #1f2937; margin-top: 2px;">' + f.name + '</div>'
+                    + '<span style="padding: 2px 8px; background: ' + c + '20; color: ' + c + '; border-radius: 8px; font-size: 10px; font-weight: 700;">' + typeLabel(f.type).toUpperCase() + '</span>'
+                    + '<div style="font-family: Merriweather, serif; font-size: 14px; font-weight: 700; margin-top: 2px;">' + f.name + '</div>'
                     + '<div style="font-size: 12px; color: #6b7280;">' + f.nameJa + '</div>'
                     + '</div></div>'
                     + (f.marketCap ? '<div style="font-size: 11px; color: #9ca3af;">時価総額: ' + f.marketCap + '</div>' : '')
@@ -8611,37 +8682,29 @@
             app.innerHTML = '<div style="max-width: 1100px; margin: 0 auto; padding: 0 16px;">'
                 + '<button class="btn-back" onclick="goToDashboard()">&larr; Dashboard</button>'
                 + '<h2 style="font-family: Merriweather, serif; color: var(--navy); text-align: center; margin: 16px 0 6px 0; font-size: 22px;">💹 U.S. Stock Markets &amp; Mag 7</h2>'
-                + '<p style="text-align: center; color: #6b7280; margin-bottom: 16px; font-size: 13px;">取引所 (NYSE/NASDAQ) ・指数 (S&amp;P 500/ダウ) ・企業 (Mag 7) &middot; ' + usFinance.length + ' entries</p>'
                 + filterHtml
                 + '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;">' + cardsHtml + '</div>'
                 + '</div>';
         }
 
-        // ========== FEDERAL AGENCIES ==========
         function openAgencies() { state.page = 'agencies'; state.agencyDetailIdx = null; state.agencyTypeFilter = 'all'; state.agencySearch = ''; render(); window.scrollTo(0, 0); }
         function openAgencyDetail(idx) { state.agencyDetailIdx = idx; render(); window.scrollTo(0, 0); }
         function closeAgencyDetail() { state.agencyDetailIdx = null; render(); }
         function setAgencyType(t) { state.agencyTypeFilter = t; render(); }
-        function setAgencySearch(val) {
-            state.agencySearch = val;
-            render();
-            var inp = document.getElementById('agency-search-input');
-            if (inp) { inp.focus(); inp.setSelectionRange(val.length, val.length); }
-        }
+        function setAgencySearch(val) { state.agencySearch = val; render(); var inp = document.getElementById('agency-search-input'); if (inp) { inp.focus(); inp.setSelectionRange(val.length, val.length); } }
         function renderAgencies(app) {
             if (state.agencyDetailIdx !== null && state.agencyDetailIdx !== undefined) {
                 var a = usAgencies[state.agencyDetailIdx];
                 if (!a) { state.agencyDetailIdx = null; renderAgencies(app); return; }
                 var c = a.color || '#1c4e80';
                 var idx = state.agencyDetailIdx;
-                var prevDisabled = idx <= 0;
-                var nextDisabled = idx >= usAgencies.length - 1;
+                var prevDisabled = idx <= 0, nextDisabled = idx >= usAgencies.length - 1;
                 var keyFactsHtml = (a.keyFactsJa && a.keyFactsJa.length) ?
                     '<h3 style="font-family: Merriweather, serif; color: ' + c + '; font-size: 16px; margin: 18px 0 10px;">Key Facts</h3>'
                     + '<ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #374151; line-height: 1.8;">'
                     + a.keyFactsJa.map(function(e){ return '<li style="margin-bottom: 5px;">' + e + '</li>'; }).join('') + '</ul>' : '';
-                var summaryBlock = a.summaryJa ? '<div style="margin-top: 16px; padding: 14px 16px; background: #f9fafb; border-left: 4px solid ' + c + '; border-radius: 0 8px 8px 0; font-size: 14px; color: #374151; line-height: 1.9;">📝 ' + a.summaryJa + '</div>' : '';
-                var notableBlock = a.notable ? '<div style="margin-top: 18px; padding: 12px 16px; background: ' + c + '10; border-left: 3px solid ' + c + '; border-radius: 0 6px 6px 0; font-size: 13px; color: #374151; line-height: 1.7;">⭐ ' + a.notable + '</div>' : '';
+                var summaryBlock = a.summaryJa ? '<div style="margin-top: 16px; padding: 14px 16px; background: #f9fafb; border-left: 4px solid ' + c + '; border-radius: 0 8px 8px 0; font-size: 14px; line-height: 1.9;">📝 ' + a.summaryJa + '</div>' : '';
+                var notableBlock = a.notable ? '<div style="margin-top: 18px; padding: 12px 16px; background: ' + c + '10; border-left: 3px solid ' + c + '; border-radius: 0 6px 6px 0; font-size: 13px; line-height: 1.7;">⭐ ' + a.notable + '</div>' : '';
                 app.innerHTML = '<div style="max-width: 900px; margin: 0 auto; padding: 0 16px;">'
                     + '<div style="display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap;">'
                     + '<button class="btn-back" onclick="closeAgencyDetail()">&larr; All Agencies</button>'
@@ -8653,14 +8716,14 @@
                     + '</div>'
                     + '<div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">'
                     + '<div style="background: linear-gradient(135deg, ' + c + ', ' + c + 'cc); padding: 26px; color: white; display: flex; gap: 18px; align-items: center;">'
-                    + '<div style="font-size: 48px; flex-shrink: 0;">' + a.icon + '</div>'
+                    + '<div style="font-size: 48px;">' + a.icon + '</div>'
                     + '<div>'
-                    + '<div style="font-size: 11px; opacity: 0.85; letter-spacing: 0.05em; font-weight: 700;">' + (a.type==='cabinet' ? 'CABINET DEPARTMENT / 内閣省' : 'INDEPENDENT AGENCY / 独立機関') + '</div>'
+                    + '<div style="font-size: 11px; opacity: 0.85; font-weight: 700;">' + (a.type==='cabinet' ? 'CABINET DEPARTMENT' : 'INDEPENDENT AGENCY') + '</div>'
                     + '<div style="font-family: Merriweather, serif; font-size: 22px; font-weight: 700; margin-top: 4px;">' + a.name + ' (' + a.abbr + ')</div>'
                     + '<div style="font-size: 14px; opacity: 0.92; margin-top: 4px;">' + a.nameJa + '</div>'
                     + '</div></div>'
                     + '<div style="padding: 24px 28px;">'
-                    + '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; color: #4b5563;">'
+                    + '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">'
                     + '<div><strong>Founded:</strong> ' + a.founded + '</div>'
                     + '<div><strong>Head:</strong> ' + a.head + '</div>'
                     + '<div><strong>HQ:</strong> ' + a.hq + '</div>'
@@ -8676,30 +8739,24 @@
                 + ['cabinet','independent'].map(function(t){
                     var active = tf === t;
                     var color = t==='cabinet' ? '#002868' : '#7e1416';
-                    var lbl = t==='cabinet' ? '内閣15省 (Cabinet)' : '独立機関 (Independent)';
+                    var lbl = t==='cabinet' ? '内閣15省' : '独立機関';
                     var cnt = usAgencies.filter(function(a){return a.type===t}).length;
                     return '<button onclick="setAgencyType(\'' + (active?'all':t) + '\')" style="padding: 6px 14px; border-radius: 999px; border: 1px solid ' + color + '; background: ' + (active ? color : 'transparent') + '; color: ' + (active ? 'white' : color) + '; font-size: 12px; font-weight: 700; cursor: pointer;">' + lbl + ' (' + cnt + ')</button>';
                 }).join('') + '</div>';
-            var searchHtml = '<div style="display: flex; justify-content: center; margin-bottom: 18px;">'
-                + '<input id="agency-search-input" type="text" placeholder="機関名・略号で検索…" value="' + (state.agencySearch || '').replace(/"/g, '&quot;') + '" oninput="setAgencySearch(this.value)" style="width: 100%; max-width: 380px; padding: 9px 14px; border: 1px solid #d1d5db; border-radius: 999px; font-size: 14px;" />'
-                + '</div>';
-            var filtered = usAgencies.map(function(a, i){ return { a:a, i:i }; })
-                .filter(function(o){
-                    if (tf !== 'all' && o.a.type !== tf) return false;
-                    if (search) {
-                        var hit = o.a.name.toLowerCase().indexOf(search) >= 0 || (o.a.nameJa||'').toLowerCase().indexOf(search) >= 0 || (o.a.abbr||'').toLowerCase().indexOf(search) >= 0;
-                        if (!hit) return false;
-                    }
-                    return true;
-                });
+            var searchHtml = '<div style="display: flex; justify-content: center; margin-bottom: 18px;"><input id="agency-search-input" type="text" placeholder="機関名・略号で検索…" value="' + (state.agencySearch || '').replace(/"/g, '&quot;') + '" oninput="setAgencySearch(this.value)" style="width: 100%; max-width: 380px; padding: 9px 14px; border: 1px solid #d1d5db; border-radius: 999px; font-size: 14px;" /></div>';
+            var filtered = usAgencies.map(function(a, i){ return { a:a, i:i }; }).filter(function(o){
+                if (tf !== 'all' && o.a.type !== tf) return false;
+                if (search && o.a.name.toLowerCase().indexOf(search) < 0 && (o.a.nameJa||'').toLowerCase().indexOf(search) < 0 && (o.a.abbr||'').toLowerCase().indexOf(search) < 0) return false;
+                return true;
+            });
             var cardsHtml = filtered.map(function(o){
                 var a = o.a, i = o.i;
                 var c = a.color || '#1c4e80';
                 return '<div onclick="openAgencyDetail(' + i + ')" style="background: white; border: 1px solid #e5e7eb; border-left: 4px solid ' + c + '; border-radius: 0 8px 8px 0; padding: 14px 16px; cursor: pointer; display: flex; gap: 12px; align-items: center;">'
-                    + '<div style="font-size: 30px; flex-shrink: 0;">' + a.icon + '</div>'
-                    + '<div style="flex: 1; min-width: 0;">'
+                    + '<div style="font-size: 30px;">' + a.icon + '</div>'
+                    + '<div style="flex: 1;">'
                     + '<div style="display: flex; gap: 6px; align-items: center;"><span style="font-family: Merriweather, serif; font-weight: 700; color: ' + c + '; font-size: 14px;">' + a.abbr + '</span>'
-                    + '<span style="font-size: 10px; padding: 1px 7px; background: ' + c + '20; color: ' + c + '; border-radius: 6px; font-weight: 600;">' + (a.type==='cabinet'?'CABINET':'INDEPENDENT') + '</span></div>'
+                    + '<span style="font-size: 10px; padding: 1px 7px; background: ' + c + '20; color: ' + c + '; border-radius: 6px;">' + (a.type==='cabinet'?'CABINET':'INDEPENDENT') + '</span></div>'
                     + '<div style="font-size: 13px; color: #1f2937; margin-top: 3px; font-weight: 600;">' + a.name + '</div>'
                     + '<div style="font-size: 12px; color: #6b7280;">' + a.nameJa + ' &middot; ' + a.founded + '</div>'
                     + '</div></div>';
@@ -8707,131 +8764,9 @@
             app.innerHTML = '<div style="max-width: 1100px; margin: 0 auto; padding: 0 16px;">'
                 + '<button class="btn-back" onclick="goToDashboard()">&larr; Dashboard</button>'
                 + '<h2 style="font-family: Merriweather, serif; color: var(--navy); text-align: center; margin: 16px 0 6px 0; font-size: 22px;">🏛️ U.S. Cabinet &amp; Federal Agencies</h2>'
-                + '<p style="text-align: center; color: #6b7280; margin-bottom: 14px; font-size: 13px;">内閣15省＋独立機関 &middot; ' + usAgencies.length + ' agencies</p>'
                 + filterHtml + searchHtml
                 + '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px;">' + cardsHtml + '</div>'
                 + '</div>';
-        }
-
-        function openWorldHeritage() {
-            state.page = 'worldheritage';
-            state.whDetailIdx = null;
-            state.whCategoryFilter = 'all';
-            state.whSearch = '';
-            render();
-        }
-        function openWHDetail(idx) { state.whDetailIdx = idx; render(); window.scrollTo(0, 0); }
-        function closeWHDetail() { state.whDetailIdx = null; render(); }
-        function setWHCategory(c) { state.whCategoryFilter = c; render(); }
-        function setWHSearch(val) {
-            state.whSearch = val;
-            render();
-            var inp = document.getElementById('wh-search-input');
-            if (inp) { inp.focus(); inp.setSelectionRange(val.length, val.length); }
-        }
-
-        function renderWorldHeritage(app) {
-            var catColor = function(c) {
-                if (c === 'Cultural') return '#b45309';
-                if (c === 'Natural') return '#065f46';
-                if (c === 'Mixed') return '#7c3aed';
-                return '#6b7280';
-            };
-            if (state.whDetailIdx !== null && state.whDetailIdx !== undefined) {
-                var s = usWorldHeritage[state.whDetailIdx];
-                if (!s) { state.whDetailIdx = null; renderWorldHeritage(app); return; }
-                var cc = catColor(s.category);
-                var idx = state.whDetailIdx;
-                var prevDisabled = idx <= 0;
-                var nextDisabled = idx >= usWorldHeritage.length - 1;
-                var keyFactsHtml = '';
-                if (s.keyFactsJa && s.keyFactsJa.length) {
-                    keyFactsHtml = '<h3 style="font-family: Merriweather, serif; color: ' + cc + '; font-size: 16px; margin: 18px 0 10px;">Key Facts</h3>'
-                        + '<ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #374151; line-height: 1.8;">'
-                        + s.keyFactsJa.map(function(e){ return '<li style="margin-bottom: 5px;">' + e + '</li>'; }).join('') + '</ul>';
-                }
-                var summaryBlock = s.summaryJa ? '<div style="margin-top: 16px; padding: 14px 16px; background: #f9fafb; border-left: 4px solid ' + cc + '; border-radius: 0 8px 8px 0; font-size: 14px; color: #374151; line-height: 1.9;">📝 ' + s.summaryJa + '</div>' : '';
-                var funFactBlock = s.funFact ? '<div style="margin-top: 18px; padding: 12px 16px; border: 1px dashed #d1d5db; border-radius: 6px; font-size: 13px; color: #6b7280; font-style: italic;">✨ ' + s.funFact + '</div>' : '';
-                var detailImg = (typeof getWHImg === 'function') ? getWHImg(idx) : null;
-                var imgBlock = detailImg ? '<div style="width: 100%; max-height: 360px; overflow: hidden;"><img src="' + detailImg + '" alt="' + s.name + '" referrerpolicy="no-referrer" loading="lazy" onerror="this.parentNode.remove()" style="width: 100%; height: 360px; object-fit: cover; display: block;"></div>' : '';
-                app.innerHTML = '<div style="max-width: 900px; margin: 0 auto; padding: 0 16px;">'
-                    + '<div style="display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap;">'
-                    + '<button class="btn-back" onclick="closeWHDetail()">&larr; All Sites</button>'
-                    + '<button class="btn-back" onclick="goToDashboard()">&larr; Dashboard</button>'
-                    + '<div style="flex: 1;"></div>'
-                    + '<button class="btn-back" onclick="' + (prevDisabled ? '' : 'openWHDetail(' + (idx - 1) + ')') + '" ' + (prevDisabled ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : '') + '>&larr; Prev</button>'
-                    + '<span style="font-size: 12px; color: #6b7280;">' + (idx + 1) + ' / ' + usWorldHeritage.length + '</span>'
-                    + '<button class="btn-back" onclick="' + (nextDisabled ? '' : 'openWHDetail(' + (idx + 1) + ')') + '" ' + (nextDisabled ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : '') + '>Next &rarr;</button>'
-                    + '</div>'
-                    + '<div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">'
-                    + imgBlock
-                    + '<div style="background: linear-gradient(135deg, ' + cc + ', ' + cc + 'cc); padding: 22px 26px; color: white;">'
-                    + '<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;">'
-                    + '<span style="display: inline-block; padding: 3px 10px; background: rgba(255,255,255,0.22); border-radius: 12px; font-size: 12px; font-weight: 700;">' + s.category.toUpperCase() + '</span>'
-                    + '<span style="font-size: 12px; opacity: 0.85;">Inscribed ' + s.inscribed + '</span>'
-                    + '</div>'
-                    + '<div style="font-family: Merriweather, serif; font-size: 24px; font-weight: 700;">' + s.name + '</div>'
-                    + '<div style="font-size: 15px; opacity: 0.92; margin-top: 4px;">' + s.nameJa + '</div>'
-                    + '<div style="font-size: 13px; opacity: 0.82; margin-top: 6px;">📍 ' + s.location + ' (' + s.locationJa + ')</div>'
-                    + '</div>'
-                    + '<div style="padding: 22px 26px;">'
-                    + summaryBlock + keyFactsHtml + funFactBlock
-                    + '</div></div></div>';
-                if (typeof ensureWHImagesLoaded === 'function' && !whImagesLoaded) {
-                    ensureWHImagesLoaded(function(){ if (state.page === 'worldheritage') render(); });
-                }
-                return;
-            }
-            var search = (state.whSearch || '').toLowerCase().trim();
-            var catFilter = state.whCategoryFilter || 'all';
-            var legendHtml = '<div style="display: flex; gap: 10px; justify-content: center; margin: 8px 0 14px; flex-wrap: wrap;">'
-                + ['Cultural','Natural','Mixed'].map(function(c){
-                    var cnt = usWorldHeritage.filter(function(s){return s.category===c}).length;
-                    var active = catFilter === c;
-                    return '<button onclick="setWHCategory(\'' + (active ? 'all' : c) + '\')" style="padding: 5px 12px; border-radius: 999px; border: 1px solid ' + catColor(c) + '; background: ' + (active ? catColor(c) : catColor(c) + '14') + '; color: ' + (active ? 'white' : catColor(c)) + '; font-weight: 700; cursor: pointer; font-size: 12px;">' + c + ' (' + cnt + ')</button>';
-                }).join('') + '</div>';
-            var searchHtml = '<div style="display: flex; justify-content: center; margin-bottom: 18px;">'
-                + '<input id="wh-search-input" type="text" placeholder="遺産名・キーワード検索…" value="' + (state.whSearch || '').replace(/"/g, '&quot;') + '" oninput="setWHSearch(this.value)" style="width: 100%; max-width: 380px; padding: 9px 14px; border: 1px solid #d1d5db; border-radius: 999px; font-size: 14px;" />'
-                + '</div>';
-            var filtered = usWorldHeritage.map(function(s, i){ return { s:s, i:i }; })
-                .filter(function(o){
-                    if (catFilter !== 'all' && o.s.category !== catFilter) return false;
-                    if (search) {
-                        var hit = o.s.name.toLowerCase().indexOf(search) >= 0 || (o.s.nameJa||'').toLowerCase().indexOf(search) >= 0 || (o.s.location||'').toLowerCase().indexOf(search) >= 0;
-                        if (!hit) return false;
-                    }
-                    return true;
-                });
-            var cardsHtml = filtered.map(function(o){
-                var s = o.s, i = o.i;
-                var cc = catColor(s.category);
-                var cardImg = (typeof getWHImg === 'function') ? getWHImg(i) : null;
-                var imgHtml = cardImg ? '<div style="height: 160px; overflow: hidden;"><img src="' + cardImg + '" referrerpolicy="no-referrer" loading="lazy" onerror="this.style.display=\'none\'" style="width: 100%; height: 100%; object-fit: cover;"></div>' : '<div style="height: 160px; background: linear-gradient(135deg, ' + cc + '20, ' + cc + '40); display: flex; align-items: center; justify-content: center; color: ' + cc + '; font-size: 14px;">' + (typeof whImagesLoaded !== 'undefined' && whImagesLoaded ? '🏛️' : '読み込み中…') + '</div>';
-                return '<div onclick="openWHDetail(' + i + ')" style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; cursor: pointer;">'
-                    + imgHtml
-                    + '<div style="padding: 14px 16px;">'
-                    + '<div style="display: flex; gap: 6px; margin-bottom: 6px;">'
-                    + '<span style="padding: 2px 8px; background: ' + cc + '22; color: ' + cc + '; border-radius: 8px; font-size: 10px; font-weight: 700;">' + s.category.toUpperCase() + '</span>'
-                    + '<span style="font-size: 11px; color: #9ca3af;">' + s.inscribed + '</span>'
-                    + '</div>'
-                    + '<div style="font-family: Merriweather, serif; font-size: 14px; font-weight: 700; line-height: 1.35;">' + s.name + '</div>'
-                    + '<div style="font-size: 12px; color: #6b7280; margin-top: 3px;">' + s.nameJa + '</div>'
-                    + '<div style="font-size: 11px; color: #9ca3af; margin-top: 6px;">📍 ' + (s.locationJa || s.location) + '</div>'
-                    + '</div></div>';
-            }).join('');
-            app.innerHTML = '<div style="max-width: 1100px; margin: 0 auto; padding: 0 16px;">'
-                + '<button class="btn-back" onclick="goToDashboard()">&larr; Dashboard</button>'
-                + '<h2 style="font-family: Merriweather, serif; color: var(--navy); text-align: center; margin: 16px 0 6px 0; font-size: 22px;">🏛️ U.S. UNESCO World Heritage Sites</h2>'
-                + '<p style="text-align: center; color: #6b7280; margin-bottom: 4px; font-size: 13px;">' + usWorldHeritage.length + ' inscribed sites &middot; 地図上の★またはカードで詳細</p>'
-                + legendHtml
-                + '<div id="wh-map-svg" style="max-width: 900px; margin: 0 auto 14px; min-height: 360px;"></div>'
-                + searchHtml
-                + '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; margin-bottom: 30px;">' + cardsHtml + '</div>'
-                + '</div>';
-            setTimeout(function(){ if (typeof drawWorldHeritageMap === 'function') drawWorldHeritageMap(); }, 0);
-            if (typeof ensureWHImagesLoaded === 'function' && !whImagesLoaded) {
-                ensureWHImagesLoaded(function(){ if (state.page === 'worldheritage') render(); });
-            }
         }
 
         function prevQuestion() {
@@ -8869,13 +8804,13 @@
             if (sectionNum === 1 && !state.testMode) {
                 html += '<div class="filter-buttons">'
                     + '<button class="filter-btn ' + (state.civicsFilter === 'all' ? 'active' : '') + '" onclick="setCivicsFilter(\'all\')">All</button>'
-                    + '<button class="filter-btn ' + (state.civicsFilter === 'official' ? 'active' : '') + '" onclick="setCivicsFilter(\'official\')">Official Only</button>'
-                    + '<button class="filter-btn ' + (state.civicsFilter === 'supplementary' ? 'active' : '') + '" onclick="setCivicsFilter(\'supplementary\')">Supplementary Only</button>'
+                    + '<button class="filter-btn ' + (state.civicsFilter === 'official' ? 'active' : '') + '" onclick="setCivicsFilter(\'official\')">Official</button>'
+                    + '<button class="filter-btn ' + (state.civicsFilter === 'supplementary' ? 'active' : '') + '" onclick="setCivicsFilter(\'supplementary\')">Supplementary</button>'
                     + '<button class="filter-btn test-mode-btn" onclick="startTestMode()">Random 20 Test</button>'
                     + '</div>';
             }
             var uncertainNow = (typeof isCurrentUncertain === 'function') ? isCurrentUncertain() : false;
-            var uncertainBadge = uncertainNow ? '<span style="display: inline-block; font-size: 11px; padding: 2px 8px; background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; border-radius: 10px; font-weight: 600; margin-left: 6px;">🤔 復習対象</span>' : '';
+            var uncertainBadge = uncertainNow ? '<span style="font-size: 11px; padding: 2px 8px; background: #fef3c7; color: #92400e; border: 1px solid #fbbf24; border-radius: 10px; font-weight: 600; margin-left: 6px;">🤔 復習対象</span>' : '';
             var badgesHtml = '';
             if (sectionNum === 1) {
                 badgesHtml = '<div class="question-badges">'
@@ -8920,7 +8855,7 @@
             }
             html += '<div class="action-buttons" style="align-items: center;">'
                 + '<div class="keyboard-hint"><kbd>&larr;</kbd><kbd>&rarr;</kbd> 移動'
-                + (!state.answered ? ' &middot; <kbd>A</kbd><kbd>B</kbd><kbd>C</kbd><kbd>D</kbd> 選択' : ' &middot; <kbd>Enter</kbd> 次へ')
+                + (!state.answered ? ' &middot; <kbd>A</kbd>-<kbd>D</kbd> 選択' : ' &middot; <kbd>Enter</kbd> 次へ')
                 + ' &middot; <kbd>0</kbd> ' + (uncertainNow ? '✓ 復習解除' : '🤔 復習登録')
                 + '</div>'
                 + (state.answered ? (state.currentQuestion < questions.length - 1
@@ -8983,53 +8918,24 @@
             }
             if (key !== 'ArrowLeft' && key !== 'ArrowRight') return;
             if (inTextField) return;
-            if (state.page === 'worldheritage' && state.whDetailIdx !== null && state.whDetailIdx !== undefined) {
-                e.preventDefault();
-                if (key === 'ArrowRight') { if (state.whDetailIdx < usWorldHeritage.length - 1) { state.whDetailIdx++; render(); window.scrollTo(0,0); } }
-                else { if (state.whDetailIdx > 0) { state.whDetailIdx--; render(); window.scrollTo(0,0); } }
-                return;
-            }
-            if (state.page === 'military' && state.militaryDetailIdx !== null && state.militaryDetailIdx !== undefined) {
-                e.preventDefault();
-                if (key === 'ArrowRight') { if (state.militaryDetailIdx < usMilitary.length - 1) { state.militaryDetailIdx++; render(); window.scrollTo(0,0); } }
-                else { if (state.militaryDetailIdx > 0) { state.militaryDetailIdx--; render(); window.scrollTo(0,0); } }
-                return;
-            }
-            if (state.page === 'finance' && state.financeDetailIdx !== null && state.financeDetailIdx !== undefined) {
-                e.preventDefault();
-                if (key === 'ArrowRight') { if (state.financeDetailIdx < usFinance.length - 1) { state.financeDetailIdx++; render(); window.scrollTo(0,0); } }
-                else { if (state.financeDetailIdx > 0) { state.financeDetailIdx--; render(); window.scrollTo(0,0); } }
-                return;
-            }
-            if (state.page === 'agencies' && state.agencyDetailIdx !== null && state.agencyDetailIdx !== undefined) {
-                e.preventDefault();
-                if (key === 'ArrowRight') { if (state.agencyDetailIdx < usAgencies.length - 1) { state.agencyDetailIdx++; render(); window.scrollTo(0,0); } }
-                else { if (state.agencyDetailIdx > 0) { state.agencyDetailIdx--; render(); window.scrollTo(0,0); } }
-                return;
-            }
-            if (state.page === 'states' && state.stateDetailIdx !== null && state.stateDetailIdx !== undefined) {
-                e.preventDefault();
-                if (key === 'ArrowRight') { if (state.stateDetailIdx < usStates.length - 1) { state.stateDetailIdx++; render(); window.scrollTo(0,0); } }
-                else { if (state.stateDetailIdx > 0) { state.stateDetailIdx--; render(); window.scrollTo(0,0); } }
-                return;
-            }
-            if (state.page === 'scotus' && state.scotusDetailIdx !== null && state.scotusDetailIdx !== undefined) {
-                e.preventDefault();
-                if (key === 'ArrowRight') { if (state.scotusDetailIdx < scotusJustices.length - 1) { state.scotusDetailIdx++; render(); window.scrollTo(0,0); } }
-                else { if (state.scotusDetailIdx > 0) { state.scotusDetailIdx--; render(); window.scrollTo(0,0); } }
-                return;
-            }
-            if (state.page === 'presidents' && state.presidentDetailIdx !== null && state.presidentDetailIdx !== undefined) {
-                e.preventDefault();
-                if (key === 'ArrowRight') { if (state.presidentDetailIdx < usPresidents.length - 1) { state.presidentDetailIdx++; render(); } }
-                else { if (state.presidentDetailIdx > 0) { state.presidentDetailIdx--; render(); } }
-                return;
-            }
-            if (state.page === 'timeline' && state.timelineDetailIdx !== null && state.timelineDetailIdx !== undefined) {
-                e.preventDefault();
-                if (key === 'ArrowRight') { if (state.timelineDetailIdx < americaTimeline.length - 1) { state.timelineDetailIdx++; render(); } }
-                else { if (state.timelineDetailIdx > 0) { state.timelineDetailIdx--; render(); } }
-                return;
+            var navPairs = [
+                ['worldheritage', 'whDetailIdx', usWorldHeritage],
+                ['states', 'stateDetailIdx', usStates],
+                ['scotus', 'scotusDetailIdx', scotusJustices],
+                ['presidents', 'presidentDetailIdx', usPresidents],
+                ['timeline', 'timelineDetailIdx', americaTimeline],
+                ['military', 'militaryDetailIdx', usMilitary],
+                ['finance', 'financeDetailIdx', usFinance],
+                ['agencies', 'agencyDetailIdx', usAgencies]
+            ];
+            for (var i = 0; i < navPairs.length; i++) {
+                var pg = navPairs[i][0], fld = navPairs[i][1], arr = navPairs[i][2];
+                if (state.page === pg && state[fld] !== null && state[fld] !== undefined) {
+                    e.preventDefault();
+                    if (key === 'ArrowRight') { if (state[fld] < arr.length - 1) { state[fld]++; render(); window.scrollTo(0,0); } }
+                    else { if (state[fld] > 0) { state[fld]--; render(); window.scrollTo(0,0); } }
+                    return;
+                }
             }
         });
 
